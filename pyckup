@@ -18,7 +18,7 @@ class Config:
         config = ConfigObj(self.config_file)
         # Verify that source and targets exist in config
         if self.opts.source and self.opts.source not in config['SOURCES']:
-            print "Source '%s' does not exist in your config!" % opts.source
+            print "Source '%s' does not exist in your config!" % self.opts.source
             sys.exit(2)
         if self.opts.targets:
             for target in self.opts.targets:
