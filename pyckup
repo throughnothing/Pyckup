@@ -40,27 +40,27 @@ class Config:
         if opts.verify:
             self.action = 'verify'
             if not opts.source or not opts.targets:
-                parser.error('You need to specify at least one source and one target to run a verification!')
+                self.parser.error('You need to specify at least one source and one target to run a verification!')
         elif opts.cleanup:
             self.action = 'cleanup'
             if not opts.targets:
-                parser.error('You need to specify at least one target to do a cleanup!')
+                self.parser.error('You need to specify at least one target to do a cleanup!')
         elif opts.list_current_files:
             self.action = 'list-current-files'
             if not opts.targets:
-                parser.error('You need to specify at least one target to list files of!')
+                self.parser.error('You need to specify at least one target to list files of!')
         elif opts.collection_status:
             self.action = 'collection-status'
             if not opts.targets:
-                parser.error('You need to specify at least one target to list files of!')
+                self.parser.error('You need to specify at least one target to list files of!')
         elif opts.remove_old:
             self.action = 'remove-old'
             if not opts.targets:
-                parser.error('You need to specify at least one target to remove old backups of!')
+                self.parser.error('You need to specify at least one target to remove old backups of!')
         else:
             self.action = 'backup'
             if not opts.source or not opts.targets:
-                parser.error('You need to specify at least one source and one target to run a backup!')
+                self.parser.error('You need to specify at least one source and one target to run a backup!')
 
         # Make sure targets is a list
         if opts.targets:
@@ -70,7 +70,7 @@ class Config:
         parser = OptionParser()
         parser.add_option("-s", "--source", dest="source", help="Source to backup", metavar="SOURCE")
         parser.add_option("-t", "--targets", dest="targets", help="Targets to backup to (comma separated, no spaces)", metavar="TARGETS")
-        parser.add_option("--dry-run", dest="dry_run", help="Dry Run")
+        parser.add_option("--dry-run", action="store_true", dest="dry_run", help="Dry Run")
         parser.add_option("-d", "--debug", action="store_true", dest="debug", help="Debug Messages")
         parser.add_option("--verify", action="store_true", dest="verify", help="Verify a backup of a source on a particular target")
         parser.add_option("--cleanup", action="store_true", dest="cleanup", help="Cleanup a target")
@@ -116,8 +116,12 @@ class Backup:
                 params.insert(1,'--no-encrypt')
             else:
                 params.insert(1,'--encrypt-key %s' % self.target['encrypt'])
+        if self.config.opts.dry_run:
+            params.insert(1,'--dry-run')
 
         self.command = ' '.join(params)
+        if self.config.opts.debug:
+            print "DEBUG: %s" % self.command
 
     def set_target(self,target):
         self.target = target
