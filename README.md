@@ -1,5 +1,5 @@
 #Pyckup
-Pyckup is a wrapper around duplicity that allows you to setup multiple targets and sources, use public/private key encryption, and backup the same source to multiple locations easily, and with a single config
+Pyckup is a wrapper around duplicity (http://duplicity.nongnu.org/duplicity.1.html) that allows you to setup multiple targets and sources, use public/private key encryption, and backup the same source to multiple locations easily, and with a single config
 
 ##Config
 Here is a sample config for pyckup (sample\_pyckuprc in the repo).
@@ -50,6 +50,16 @@ The --help option should explain everything else you can do with pyckup.
 #TODO
 
 Only local files are currently working.  Amazon s3, CloudFiles, and scp support should be coming soon.
+
+Support:
+    --full-if-older-than
+    --dry-run
+    --file-to-restore
+    --asynchronous-upload (experimental in duplicity)
+    --time
+    --restore-time
+    --volsize
+
 
 #Disclaimer
 This software comes with no guarantees and very well may destroy your backups and burn your external hard drives.  Use at your own risk.
