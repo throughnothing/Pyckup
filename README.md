@@ -55,9 +55,13 @@ This way you can have a local copy for quick restores, as well as a backup in s3
 
 The --help option should explain everything else you can do with pyckup.
 
+Currently backups have been tested on local filesystem, amazon s3, and using scp.
+
 #TODO
 
-Add Support For:
+Add support for Rackspace CloudFiles.
+
+Add support for these duplicity flags:
     --full-if-older-than
     --file-to-restore
     --time

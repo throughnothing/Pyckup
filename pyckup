@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from configobj import ConfigObj
 from optparse import OptionParser
-import sys,commands,os
+import sys,subprocess,os
 
 
 class Config:
@@ -70,18 +70,19 @@ class Config:
         parser = OptionParser()
         parser.add_option("-s", "--source", dest="source", help="Source to backup", metavar="SOURCE")
         parser.add_option("-t", "--targets", dest="targets", help="Targets to backup to (comma separated, no spaces)", metavar="TARGETS")
-        parser.add_option("--dry-run", action="store_true", dest="dry_run", help="Dry Run")
-        parser.add_option("-d", "--debug", action="store_true", dest="debug", help="Debug Messages")
         parser.add_option("--verify", action="store_true", dest="verify", help="Verify a backup of a source on a particular target")
         parser.add_option("--cleanup", action="store_true", dest="cleanup", help="Cleanup a target")
         parser.add_option("--list-current-files", action="store_true", dest="list_current_files", help="List current files in a backup")
         parser.add_option("--collection-status", action="store_true", dest="collection_status", help="Show the status of a collection")
         parser.add_option("--remove-old", action="store_true", dest="remove_old", help="Remove old backups as specified by the target")
+        parser.add_option("--dry-run", action="store_true", dest="dry_run", help="Dry Run")
+        parser.add_option("-d", "--debug", action="store_true", dest="debug", help="Debug Messages")
+        parser.add_option("-v", "--verbosity", dest="verbosity", help="Level of verbosity for duplicity (0-9)")
         self.parser = parser
         (self.opts, args) = parser.parse_args()
 
 class Backup:
-    duplicity = 'duplicity'
+    duplicity = '/usr/bin/duplicity'
     def __init__(self,config,target_name):
         self.source = False
         self.sourc_path = False
@@ -123,23 +124,42 @@ class Backup:
             raise Exception("You don't seem to have your aws keys specified in your config!")
 
     def _generate_command(self,params):
+        myparams = []
+        for p in params:
+            if p:
+                myparams.append(p)
+        params = myparams
+
         # Set necessary environment variables
         for var, val in self.env.items():
             var = var.upper()
             os.putenv(var,val)
 
+        # Duplicity command has to be first
         params.insert(0, self.duplicity)
+
         # We always want to use the unique target name
-        params.insert(1,'--name %s' % self.target_name)
+        params.insert(1,'--name')
+        params.insert(2,self.target_name)
+
+        # Encryption
         if 'encrypt' in self.target:
             if self.target['encrypt'].lower() == 'none':
                 params.insert(1,'--no-encrypt')
             else:
-                params.insert(1,'--encrypt-key %s' % self.target['encrypt'])
+                params.insert(1,'--encrypt-key')
+                params.insert(2, self.target['encrypt'])
+        # Dry Run
         if self.config.opts.dry_run:
             params.insert(1,'--dry-run')
 
-        self.command = ' '.join(params)
+        # Verbosity
+        if self.config.opts.verbosity:
+            params.insert(1,'--verbosity')
+            params.insert(2,self.config.opts.verbosity)
+
+        self.command = params
+        #self.command = ' '.join(params)
         if self.config.opts.debug:
             print "DEBUG: %s" % self.command
 
@@ -178,7 +198,7 @@ class Backup:
             ])
 
         if self.command:
-            print commands.getoutput(self.command)
+            subprocess.call(self.command)
 
 class Pyckup:
     def __init__(self,config):
