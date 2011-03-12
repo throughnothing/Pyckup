@@ -1,0 +1,130 @@
+#!/usr/bin/env python
+from configobj import ConfigObj
+from optparse import OptionParser
+import sys,commands
+
+CONFIG_FILE='/home/throughnothing/.pyckuprc'
+
+parser = OptionParser()
+parser.add_option("-s", "--source", dest="source", 
+                  help="Source to backup", 
+                  metavar="SOURCE")
+parser.add_option("-t", "--targets", dest="targets", 
+                  help="Targets to backup to (comma separated, no spaces)", 
+                  metavar="TARGETS")
+#parser.add_option("--dry-run", dest="dry_run", help="Dry Run")
+
+parser.add_option("--verify", action="store_true", dest="verify", help="Verify a backup of a source on a particular target")
+parser.add_option("--cleanup", action="store_true", dest="cleanup", help="Cleanup a target")
+parser.add_option("--list-current-files", action="store_true", dest="list_current_files", help="List current files in a backup")
+parser.add_option("--collection-status", action="store_true", dest="collection_status", help="Show the status of a collection")
+
+(opts, args) = parser.parse_args()
+# Make sure necessary information was given
+if opts.verify:
+  opts.action = 'verify'
+  if not opts.source or not opts.targets:
+    parser.error('You need to specify at least one source and one target to run a verification!')
+elif opts.cleanup:
+  opts.action = 'cleanup'
+  if not opts.targets:
+    parser.error('You need to specify at least one target to do a cleanup!')
+elif opts.list_current_files:
+  opts.action = 'list-current-files'
+  if not opts.targets:
+    parser.error('You need to specify at least one target to list files of!')
+elif opts.collection_status:
+  opts.action = 'collection-status'
+  if not opts.targets:
+    parser.error('You need to specify at least one target to list files of!')
+else:
+  opts.action = 'backup'
+  if not opts.source or not opts.targets:
+    parser.error('You need to specify at least one source and one target to run a backup!')
+
+# Make sure targets is a list
+if opts.targets:
+  opts.targets = opts.targets.split(',')
+
+config = ConfigObj(CONFIG_FILE)
+# Verify that source and targets exist in config
+if opts.source and opts.source not in config['SOURCES']:
+    print "Source '%s' does not exist in your config!" % opts.source
+    sys.exit(2)
+if opts.targets:
+  for target in opts.targets:
+    if target not in config['TARGETS']:
+      print "Target '%s' does not exist in your config!" % target
+      sys.exit(2)
+
+if config == {}:
+  print "Error reading config: %s" % CONFIG_FILE
+  sys.exit(1)
+
+class Duplicity:
+  duplicity = 'duplicity'
+  def __init__(self,action):
+    self.source = False
+    self.sourc_path = False
+    self.target = False
+    self.target_path = False
+    self.action = action
+    self.includes = ''
+    self.excludes = ''
+
+  def _parse_source_args(self):
+    if 'include' in self.source:
+      if(type(self.source['include']).__name__ != 'list'):
+        self.source['include'] = [self.source['include']]
+      self.includes = '--include ' + ' --include '.join('"%s%s"' % (self.source_path,e) for e in self.source['include'])
+    if 'exclude' in self.source:
+      if(type(self.source['exclude']).__name__ != 'list'):
+        self.source['exclude'] = [self.source['exclude']]
+      self.excludes = '--exclude ' + ' --exclude '.join('"%s%s"' % (self.source_path,e) for e in self.source['exclude'])
+
+  def _parse_target_args(self):
+    pass
+
+  def _generate_command(self,params):
+    params.insert(0, self.duplicity)
+    if 'encrypt' in self.target:
+      if self.target['encrypt'].lower() == 'none':
+        params.insert(1,'--no-encrypt')
+      else:
+        params.insert(1,'--encrypt-key %s' % self.target['encrypt'])
+
+    self.command = ' '.join(params)
+
+  def set_target(self,target):
+    self.target = target
+    self.target_path = target['path']
+    self._parse_target_args()
+
+  def set_source(self,source):
+    self.source = source
+    self.source_path = source['path']
+    self._parse_source_args()
+
+  def run(self):
+    self.command = ''
+    if self.action == 'backup':
+      self._generate_command([self.includes,self.excludes,self.source['path'],self.target['path']])
+    elif self.action == 'verify':
+      self._generate_command([self.action,self.includes, self.excludes,self.target['path'],self.source['path']])
+    elif self.action == 'cleanup' or self.action == 'list-current-files' or self.action == 'collection-status':
+      if self.action == 'cleanup' and not opts.dry_run: self.action = 'cleanup --force'
+      self._generate_command([self.action,self.target['path']])
+
+    if self.command:
+      print commands.getoutput(self.command)
+
+dups = []
+for target in opts.targets:
+  dups.append(Duplicity(opts.action));
+  cur = dups[-1]
+  cur.set_target(config['TARGETS'][target])
+  if opts.source:
+    cur.set_source(config['SOURCES'][opts.source])
+
+for dup in dups:
+  dup.run()

@@ -1,0 +1,27 @@
+[TARGETS]
+  [[amazon_photos]]
+  path = s3://my_s3_bucket/duplicity-photos/
+  encrypt = 2D9E0CB3
+
+  [[amazon_dot_files]]
+  path = s3://my_s3_bucket/duplicity-dot-files/
+  encrypt = 2D9E0CB3
+
+  [[local_photos]]
+  path = file:///home/throughnothing/backups/photos/
+  encrypt = none
+
+  [[local_dot_files]]
+  path = file:///home/throughnothing/backups/dot_files/
+  encrypt = none
+
+[SOURCES]
+  [[photos]]
+  path = /home/throughnothing/Pictures/
+  exclude = **
+  include = *.jpg,*.JPG,*.jpeg,*.JPEG
+
+  [[dot_files]]
+  path = /home/throughnothing/
+  exclude = **
+  include = .vim,.vimrc,.irss,.ssh,.gnupg,.bashrc,.alias
