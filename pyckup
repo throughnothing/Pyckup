@@ -95,7 +95,6 @@ class Backup:
         self.excludes = ''
 
     def _parse_source_args(self):
-        print "parse source args",self.source
         if 'include' in self.source:
             if(type(self.source['include']).__name__ != 'list'):
                 self.source['include'] = [self.source['include']]
@@ -138,12 +137,26 @@ class Backup:
     def run(self):
         self.command = ''
         if self.config.action == 'backup':
-            self._generate_command([self.includes,self.excludes,self.source['path'],self.target['path']])
+            self._generate_command([
+                iself.includes,
+                self.excludes,
+                self.source['path'],
+                self.target['path']
+            ])
         elif self.config.action == 'verify':
-            self._generate_command([self.config.action,self.includes, self.excludes,self.target['path'],self.source['path']])
+            self._generate_command([
+                self.config.action,
+                self.includes,
+                self.excludes,
+                self.target['path'],
+                self.source['path']
+            ])
         elif self.config.action == 'cleanup' or self.config.action == 'list-current-files' or self.config.action == 'collection-status':
             if self.config.action == 'cleanup' and not self.config.opts.dry_run: self.config.action = 'cleanup --force'
-            self._generate_command([self.config.action,self.target['path']])
+            self._generate_command([
+                self.config.action,
+                self.target['path']
+            ])
 
         if self.command:
             print commands.getoutput(self.command)

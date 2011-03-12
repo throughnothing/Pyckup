@@ -1,6 +1,8 @@
 #Pyckup
 Pyckup is a wrapper around duplicity (http://duplicity.nongnu.org/duplicity.1.html) that allows you to setup multiple targets and sources, use public/private key encryption, and backup the same source to multiple locations easily, and with a single config
 
+All the code is in one python file to make it easier to move around and distribute to other machines.
+
 ##Config
 Here is a sample config for pyckup (sample\_pyckuprc in the repo).
 
