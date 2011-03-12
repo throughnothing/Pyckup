@@ -64,11 +64,12 @@ if config == {}:
 
 class Duplicity:
   duplicity = 'duplicity'
-  def __init__(self,action):
+  def __init__(self,action,target_name):
     self.source = False
     self.sourc_path = False
     self.target = False
     self.target_path = False
+    self.target_name = target_name
     self.action = action
     self.includes = ''
     self.excludes = ''
@@ -88,6 +89,8 @@ class Duplicity:
 
   def _generate_command(self,params):
     params.insert(0, self.duplicity)
+    # We always want to use the unique target name
+    params.insert(1,'--name %s' % self.target_name)
     if 'encrypt' in self.target:
       if self.target['encrypt'].lower() == 'none':
         params.insert(1,'--no-encrypt')
@@ -123,7 +126,7 @@ class Duplicity:
 
 dups = []
 for target in opts.targets:
-  dups.append(Duplicity(opts.action));
+  dups.append(Duplicity(opts.action,target));
   cur = dups[-1]
   cur.set_target(config['TARGETS'][target])
   if opts.source:
