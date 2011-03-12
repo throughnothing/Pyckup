@@ -7,13 +7,17 @@ All the code is in one python file to make it easier to move around and distribu
 Here is a sample config for pyckup (sample\_pyckuprc in the repo).
 
     [TARGETS]
+      aws_access_key_id = AWSACCESSKEYID1
+      aws_secret_access_key = AWSSECRETACCESSKEY1
+
       [[amazon_photos]]
-      aws_access_key_id = AWSACCESSKEYID
-      aws_secret_access_key = AWSSECRETACCESSKEY
+      aws_access_key_id = AWSACCESSKEYID2
+      aws_secret_access_key = AWSSECRETACCESSKEY2
       path = s3+http://my_s3_bucket/duplicity-photos/
       encrypt = 2D9E0CB3
 
       [[amazon_dot_files]]
+      # This target will use default aws_* fields from above
       path = s3://my_s3_bucket/duplicity-dot-files/
       encrypt = 2D9E0CB3
 
