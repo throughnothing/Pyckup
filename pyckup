@@ -13,6 +13,7 @@ parser.add_option("-t", "--targets", dest="targets",
                   help="Targets to backup to (comma separated, no spaces)", 
                   metavar="TARGETS")
 #parser.add_option("--dry-run", dest="dry_run", help="Dry Run")
+parser.add_option("-d", "--debug", action="store_true", dest="debug", help="Debug Messages")
 
 parser.add_option("--verify", action="store_true", dest="verify", help="Verify a backup of a source on a particular target")
 parser.add_option("--cleanup", action="store_true", dest="cleanup", help="Cleanup a target")
@@ -116,6 +117,8 @@ class Duplicity:
       self._generate_command([self.action,self.target['path']])
 
     if self.command:
+      if opts.debug:
+          print self.command
       print commands.getoutput(self.command)
 
 dups = []
