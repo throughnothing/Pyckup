@@ -21,14 +21,14 @@ class Config:
             print "Source '%s' does not exist in your config!" % opts.source
             sys.exit(2)
         if self.opts.targets:
-          for target in self.opts.targets:
-            if target not in config['TARGETS']:
-              print "Target '%s' does not exist in your config!" % target
-              sys.exit(2)
+            for target in self.opts.targets:
+                if target not in config['TARGETS']:
+                    print "Target '%s' does not exist in your config!" % target
+                    sys.exit(2)
 
         if config == {}:
-          print "Error reading config: %s" % self.config_file
-          sys.exit(1)
+            print "Error reading config: %s" % self.config_file
+            sys.exit(1)
 
         self.targets = config['TARGETS']
         self.sources = config['SOURCES']
@@ -38,33 +38,33 @@ class Config:
         opts = self.opts
         # Make sure necessary information was given
         if opts.verify:
-          self.action = 'verify'
-          if not opts.source or not opts.targets:
-            parser.error('You need to specify at least one source and one target to run a verification!')
+            self.action = 'verify'
+            if not opts.source or not opts.targets:
+                parser.error('You need to specify at least one source and one target to run a verification!')
         elif opts.cleanup:
-          self.action = 'cleanup'
-          if not opts.targets:
-            parser.error('You need to specify at least one target to do a cleanup!')
+            self.action = 'cleanup'
+            if not opts.targets:
+                parser.error('You need to specify at least one target to do a cleanup!')
         elif opts.list_current_files:
-          self.action = 'list-current-files'
-          if not opts.targets:
-            parser.error('You need to specify at least one target to list files of!')
+            self.action = 'list-current-files'
+            if not opts.targets:
+                parser.error('You need to specify at least one target to list files of!')
         elif opts.collection_status:
-          self.action = 'collection-status'
-          if not opts.targets:
-            parser.error('You need to specify at least one target to list files of!')
+            self.action = 'collection-status'
+            if not opts.targets:
+                parser.error('You need to specify at least one target to list files of!')
         elif opts.remove_old:
             self.action = 'remove-old'
             if not opts.targets:
                 parser.error('You need to specify at least one target to remove old backups of!')
         else:
-          self.action = 'backup'
-          if not opts.source or not opts.targets:
-            parser.error('You need to specify at least one source and one target to run a backup!')
+            self.action = 'backup'
+            if not opts.source or not opts.targets:
+                parser.error('You need to specify at least one source and one target to run a backup!')
 
         # Make sure targets is a list
         if opts.targets:
-          opts.targets = opts.targets.split(',')
+            opts.targets = opts.targets.split(',')
 
     def _define_options(self):
         parser = OptionParser()
@@ -79,7 +79,6 @@ class Config:
         parser.add_option("--remove-old", action="store_true", dest="remove_old", help="Remove old backups as specified by the target")
         self.parser = parser
         (self.opts, args) = parser.parse_args()
-
 
 
 class Backup:
