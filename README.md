@@ -10,7 +10,7 @@ Here is a sample config for pyckup (sample\_pyckuprc in the repo).
       [[amazon_photos]]
       aws_access_key_id = AWSACCESSKEYID
       aws_secret_access_key = AWSSECRETACCESSKEY
-      path = s3://my_s3_bucket/duplicity-photos/
+      path = s3+http://my_s3_bucket/duplicity-photos/
       encrypt = 2D9E0CB3
 
       [[amazon_dot_files]]
