@@ -138,7 +138,7 @@ class Backup:
         self.command = ''
         if self.config.action == 'backup':
             self._generate_command([
-                iself.includes,
+                self.includes,
                 self.excludes,
                 self.source['path'],
                 self.target['path']
