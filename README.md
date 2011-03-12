@@ -8,6 +8,8 @@ Here is a sample config for pyckup (sample\_pyckuprc in the repo).
 
     [TARGETS]
       [[amazon_photos]]
+      aws_access_key_id = AWSACCESSKEYID
+      aws_secret_access_key = AWSSECRETACCESSKEY
       path = s3://my_s3_bucket/duplicity-photos/
       encrypt = 2D9E0CB3
 
@@ -51,16 +53,13 @@ The --help option should explain everything else you can do with pyckup.
 
 #TODO
 
-Only local files are currently working.  Amazon s3, CloudFiles, and scp support should be coming soon.
-
-Support:
+Add Support For:
     --full-if-older-than
-    --dry-run
     --file-to-restore
-    --asynchronous-upload (experimental in duplicity)
     --time
     --restore-time
     --volsize
+    --asynchronous-upload (experimental in duplicity)
 
 
 #Disclaimer

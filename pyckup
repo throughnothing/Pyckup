@@ -80,7 +80,6 @@ class Config:
         self.parser = parser
         (self.opts, args) = parser.parse_args()
 
-
 class Backup:
     duplicity = 'duplicity'
     def __init__(self,config,target_name):
@@ -89,6 +88,7 @@ class Backup:
         self.target = False
         self.target_path = False
         self.target_name = target_name
+        self.env = {}
 
         self.config = config
         self.includes = ''
@@ -107,8 +107,27 @@ class Backup:
     def _parse_target_args(self):
         if 'remove_older_than' in self.target:
             pass
+        if self.target_path[0:5].lower() == 's3://' or self.target_path[0:10] == 's3+http://':
+            self._get_s3_keys()
+
+    def _get_s3_keys(self):
+        # Check if target-level keys exist
+        if 'aws_access_key_id' in self.target:
+            self.env['aws_access_key_id'] = self.target['aws_access_key_id']
+            self.env['aws_secret_access_key'] = self.target['aws_secret_access_key']
+        # Otherwise check global target level
+        elif 'aws_access_key_id' in self.config.targets:
+            self.env['aws_access_key_id'] = self.config.targets['aws_access_key_id']
+            self.env['aws_secret_access_key'] = self.config.targets['aws_secret_access_key']
+        else:
+            raise Exception("You don't seem to have your aws keys specified in your config!")
 
     def _generate_command(self,params):
+        # Set necessary environment variables
+        for var, val in self.env.items():
+            var = var.upper()
+            os.putenv(var,val)
+
         params.insert(0, self.duplicity)
         # We always want to use the unique target name
         params.insert(1,'--name %s' % self.target_name)
@@ -160,7 +179,6 @@ class Backup:
 
         if self.command:
             print commands.getoutput(self.command)
-
 
 class Pyckup:
     def __init__(self,config):

@@ -1,27 +1,35 @@
 [TARGETS]
-  [[amazon_photos]]
-  path = s3://my_s3_bucket/duplicity-photos/
-  encrypt = 2D9E0CB3
+    # These will be the defaults for any s3 buckets
+    aws_access_key_id = AWSACCESSKEY1
+    aws_secret_access_key = AWSSECRETACCESSKEY1
 
-  [[amazon_dot_files]]
-  path = s3://my_s3_bucket/duplicity-dot-files/
-  encrypt = 2D9E0CB3
+    [[amazon_photos]]
+    # This target will use the default aws_* stuff from above
+    path = s3+http://my_s3_bucket/duplicity-photos/
+    encrypt = 2D9E0CB3
 
-  [[local_photos]]
-  path = file:///home/throughnothing/backups/photos/
-  encrypt = none
+    [[amazon_dot_files]]
+    # This target will overwrite the default aws_* fields
+    aws_access_key_id = AWSACCESSKEY2
+    aws_secret_access_key = AWSSECRETACCESSKEY2
+    path = s3://my_s3_bucket/duplicity-dot-files/
+    encrypt = 2D9E0CB3
 
-  [[local_dot_files]]
-  path = file:///home/throughnothing/backups/dot_files/
-  encrypt = none
+    [[local_photos]]
+    path = file:///home/throughnothing/backups/photos/
+    encrypt = none
+
+    [[local_dot_files]]
+    path = file:///home/throughnothing/backups/dot_files/
+    encrypt = none
 
 [SOURCES]
-  [[photos]]
-  path = /home/throughnothing/Pictures/
-  exclude = **
-  include = *.jpg,*.JPG,*.jpeg,*.JPEG
+    [[photos]]
+    path = /home/throughnothing/Pictures/
+    exclude = **
+    include = *.jpg,*.JPG,*.jpeg,*.JPEG
 
-  [[dot_files]]
-  path = /home/throughnothing/
-  exclude = **
-  include = .vim,.vimrc,.irss,.ssh,.gnupg,.bashrc,.alias
+    [[dot_files]]
+    path = /home/throughnothing/
+    exclude = **
+    include = .vim,.vimrc,.irss,.ssh,.gnupg,.bashrc,.alias
