@@ -97,13 +97,21 @@ class Backup:
 
     def _parse_source_args(self):
         if 'include' in self.source:
+            self.includes = []
             if(type(self.source['include']).__name__ != 'list'):
                 self.source['include'] = [self.source['include']]
-            self.includes = '--include ' + ' --include '.join('"%s%s"' % (self.source_path,e) for e in self.source['include'])
+            #self.includes = '--include ' + ' --include '.join('"%s%s"' % (self.source_path,e) for e in self.source['include'])
+            for include in self.source['include']:
+                self.includes.append('--include')
+                self.includes.append('%s%s' % (self.source_path, include))
         if 'exclude' in self.source:
+            self.excludes = []
             if(type(self.source['exclude']).__name__ != 'list'):
                 self.source['exclude'] = [self.source['exclude']]
-            self.excludes = '--exclude ' + ' --exclude '.join('"%s%s"' % (self.source_path,e) for e in self.source['exclude'])
+            #self.excludes = '--exclude ' + ' --exclude '.join('"%s%s"' % (self.source_path,e) for e in self.source['exclude'])
+            for exclude in self.source['exclude']:
+                self.excludes.append('--exclude')
+                self.excludes.append('%s%s' % (self.source_path, exclude))
 
     def _parse_target_args(self):
         if 'remove_older_than' in self.target:
@@ -124,23 +132,18 @@ class Backup:
             raise Exception("You don't seem to have your aws keys specified in your config!")
 
     def _generate_command(self,params):
-        myparams = []
-        for p in params:
-            if p:
-                myparams.append(p)
-        params = myparams
-
         # Set necessary environment variables
         for var, val in self.env.items():
             var = var.upper()
             os.putenv(var,val)
 
+        myparams = []
         # Duplicity command has to be first
-        params.insert(0, self.duplicity)
+        myparams.append(self.duplicity)
 
         # We always want to use the unique target name
-        params.insert(1,'--name')
-        params.insert(2,self.target_name)
+        params.append('--name')
+        params.append(self.target_name)
 
         # Encryption
         if 'encrypt' in self.target:
@@ -149,6 +152,7 @@ class Backup:
             else:
                 params.insert(1,'--encrypt-key')
                 params.insert(2, self.target['encrypt'])
+
         # Dry Run
         if self.config.opts.dry_run:
             params.insert(1,'--dry-run')
@@ -157,8 +161,23 @@ class Backup:
         if self.config.opts.verbosity:
             params.insert(1,'--verbosity')
             params.insert(2,self.config.opts.verbosity)
+    
+        # Check includes
+        if self.includes:
+            for i in self.includes:
+                myparams.append(i)
 
-        self.command = params
+        # Check excludes
+        if self.excludes:
+            for i in self.excludes:
+                myparams.append(i)
+                
+        # Add on passed in aprams
+        myparams = myparams + params
+
+
+
+        self.command = myparams
         #self.command = ' '.join(params)
         if self.config.opts.debug:
             print "DEBUG: %s" % self.command
@@ -176,26 +195,12 @@ class Backup:
     def run(self):
         self.command = ''
         if self.config.action == 'backup':
-            self._generate_command([
-                self.includes,
-                self.excludes,
-                self.source['path'],
-                self.target['path']
-            ])
+            self._generate_command([self.source['path'], self.target['path']])
         elif self.config.action == 'verify':
-            self._generate_command([
-                self.config.action,
-                self.includes,
-                self.excludes,
-                self.target['path'],
-                self.source['path']
-            ])
+            self._generate_command([self.target['path'],self.source['path']])
         elif self.config.action == 'cleanup' or self.config.action == 'list-current-files' or self.config.action == 'collection-status':
             if self.config.action == 'cleanup' and not self.config.opts.dry_run: self.config.action = 'cleanup --force'
-            self._generate_command([
-                self.config.action,
-                self.target['path']
-            ])
+            self._generate_command([self.target['path']])
 
         if self.command:
             subprocess.call(self.command)
