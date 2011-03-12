@@ -95,17 +95,19 @@ class Backup:
         self.excludes = ''
 
     def _parse_source_args(self):
+        print "parse source args",self.source
         if 'include' in self.source:
             if(type(self.source['include']).__name__ != 'list'):
                 self.source['include'] = [self.source['include']]
-                self.includes = '--include ' + ' --include '.join('"%s%s"' % (self.source_path,e) for e in self.source['include'])
+            self.includes = '--include ' + ' --include '.join('"%s%s"' % (self.source_path,e) for e in self.source['include'])
         if 'exclude' in self.source:
             if(type(self.source['exclude']).__name__ != 'list'):
                 self.source['exclude'] = [self.source['exclude']]
-                self.excludes = '--exclude ' + ' --exclude '.join('"%s%s"' % (self.source_path,e) for e in self.source['exclude'])
+            self.excludes = '--exclude ' + ' --exclude '.join('"%s%s"' % (self.source_path,e) for e in self.source['exclude'])
 
     def _parse_target_args(self):
-        pass
+        if 'remove_older_than' in self.target:
+            pass
 
     def _generate_command(self,params):
         params.insert(0, self.duplicity)
