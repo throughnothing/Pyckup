@@ -15,6 +15,10 @@ class Config:
         self._check_options()
     
     def _read_config(self):
+        # Make sure targets is a list
+        if self.opts.targets:
+            self.opts.targets = self.opts.targets.split(',')
+
         config = ConfigObj(self.config_file)
         # Verify that source and targets exist in config
         if self.opts.source and self.opts.source not in config['SOURCES']:
@@ -54,8 +58,6 @@ class Config:
         if exit:
             sys.exit(0)
 
-
-
     def _check_options(self):
         opts = self.opts
         # Make sure necessary information was given
@@ -83,10 +85,6 @@ class Config:
             self.action = 'backup'
             if not opts.source or not opts.targets:
                 self.parser.error('You need to specify at least one source and one target to run a backup!')
-
-        # Make sure targets is a list
-        if opts.targets:
-            opts.targets = opts.targets.split(',')
 
     def _define_options(self):
         parser = OptionParser()
