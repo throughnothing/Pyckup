@@ -40,7 +40,8 @@ class Config:
             print "Sources:"
             # Print out sources and exit
             for source in self.sources:
-                print "\t",source
+                if 'path' in self.sources[source]:
+                    print "\t",source
 
         if self.opts.list_targets:
             exit = True
