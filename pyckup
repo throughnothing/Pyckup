@@ -141,6 +141,10 @@ class Backup:
         # Duplicity command has to be first
         myparams.append(self.duplicity)
 
+        # Add action
+        if self.config.action != 'backup':
+            myparams.append(self.config.action)
+
         # We always want to use the unique target name
         params.append('--name')
         params.append(self.target_name)
@@ -198,8 +202,8 @@ class Backup:
             self._generate_command([self.source['path'], self.target['path']])
         elif self.config.action == 'verify':
             self._generate_command([self.target['path'],self.source['path']])
-        elif self.config.action == 'cleanup' or self.config.action == 'list-current-files' or self.config.action == 'collection-status':
-            if self.config.action == 'cleanup' and not self.config.opts.dry_run: self.config.action = 'cleanup --force'
+        elif self.config.action in ['cleanup','list-current-files','collection-status']:
+            if self.config.action == 'cleanup' and not self.config.opts.dry_run: self.config.action = 'cleanup'
             self._generate_command([self.target['path']])
 
         if self.command:
