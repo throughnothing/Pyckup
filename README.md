@@ -3,6 +3,19 @@ Pyckup is a wrapper around duplicity (http://duplicity.nongnu.org/duplicity.1.ht
 
 All the code is in one python file to make it easier to move around and distribute to other machines.
 
+## Installation
+Needed python packages:
+
+    boto configobj
+
+For ubuntu:
+
+    sudo aptitude install python-boto python-configobj
+
+Otherwise:
+
+    pip install boto configobj
+
 ##Config
 Here is a sample config for pyckup (sample\_pyckuprc in the repo).
 
